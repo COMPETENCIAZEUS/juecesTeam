@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossfit Judge - WOD 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #timer {
+            font-size: 2em;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .input-container {
+            margin-bottom: 20px;
+        }
+        .input-container label {
+            margin-right: 10px;
+        }
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WOD 2: For Time (TC: 7')</h1>
+        <div class="input-container">
+            <label for="athleteName">Nombre del Atleta:</label>
+            <input type="text" id="athleteName">
+        </div>
+        <div class="input-container">
+            <label for="judgeName">Nombre del Juez:</label>
+            <input type="text" id="judgeName">
+        </div>
+
+        <p>Completa el siguiente circuito de ejercicios:</p>
+        <ul>
+            <li>14-12-10-8-6-4-2 Box jump over</li>
+            <li>2-4-6-8-10-12-14 Db snatch</li>
+        </ul>
+
+        <div id="timer">07:00</div>
+
+        <div class="button-container">
+            <button onclick="startTimer()">Iniciar Temporizador</button>
+            <button onclick="stopTimer()">Detener Temporizador</button>
+        </div>
+        
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Repeticiones</th>
+                    <th>Box Jump Over</th>
+                    <th>Db Snatch</th>
+                    <th>Reps Completadas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>14</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="number" min="0"></td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="number" min="0"></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="number" min="0"></td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="number" min="0"></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="number" min="0"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="number" min="0"></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="number" min="0"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="button-container">
+            <button onclick="captureResults()">Capturar Resultados</button>
+            <button onclick="clearFields()">Vaciar Casillas</button>
+            <button onclick="restoreFields()">Recuperar Datos</button>
+        </div>
+
+        <div id="message" class="message" style="display: none;">¡Resultados capturados exitosamente!</div>
+    </div>
+
+    <script>
+        let time = 420; // 7 minutes in seconds
+        let timer;
+        const timerElement = document.getElementById('timer');
+        const messageElement = document.getElementById('message');
+        let savedFields = {};
+
+        function updateTimer() {
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            if (time > 0) {
+                time--;
+            } else {
+                clearInterval(timer);
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timer); // Reset any existing timer
+            timer = setInterval(updateTimer, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+        }
+
+        function captureResults() {
+            const athleteName = document.getElementById('athleteName').value;
+            const judgeName = document.getElementById('judgeName').value;
+            const table = document.querySelector('table');
+            html2canvas(table).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = imgData;
+                link.download = `resultados_${athleteName}.png`;
+                link.click();
+                messageElement.style.display = 'block';
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 3000);
+            });
+        }
+
+        function clearFields() {
+            savedFields = {};
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    savedFields[input.id] = input.checked;
+                    input.checked = false;
+                } else if (input.type === 'number') {
+                    savedFields[input.id] = input.value;
+                    input.value = '';
+                } else {
+                    savedFields[input.id] = input.value;
+                    input.value = '';
+                }
+            });
+        }
+
+        function restoreFields() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if (savedFields.hasOwnProperty(input.id)) {
+                    if (input.type === 'checkbox') {
+                        input.checked = savedFields[input.id];
+                    } else {
+                        input.value = savedFields[input.id];
+                    }
+                }
+            });
+        }
+    </script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</body>
+</html>
